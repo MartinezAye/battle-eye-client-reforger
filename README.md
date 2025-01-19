@@ -1,35 +1,43 @@
 # Description
-A BattleEye Client for node.js. Used for Arma2 and Arma 3.
+A BattleEye Client for node.js. Used for Arma Reforger.
 
 # Installation
 ```
 npm install battle-eye-client
+replace index.js with this forked version
 ```
 # Example Usage
 ```js
-// Load library
-var BattleEyeClient = require("battle-eye-client")
+const BattleEyeClientReforger = require('battle-eye-client-reforger');
 
-// Create Client. Modify ip-address, port and password
-var battleEyeClient = new BattleEyeClient("IP", 2320, "Password")
-
-// Register callback function for replies. Any message from the server will go here. 
-battleEyeClient.messageHandler =  function (message) {
-  console.log(message);
+const config = {
+  server: {
+    host: "127.0.0.1",
+    rconPort: 2302,
+    rconPassword: "mySecretPassword"
+  }
 };
 
-// Do your cleanup and error handling
-battleEyeClient.timeoutHandler= function() {
-  console.log("Connection timed out.");
-  battleEyeClient = undefined;
+const { host, rconPort, rconPassword } = config.server;
+const battleEyeClient = new BattleEyeClientReforger(host, rconPort, rconPassword);
+
+// Handle incoming server messages
+battleEyeClient.messageHandler = function (message) {
+  console.log("Server Response:", message);
 };
 
-// Connect
-battleEyeClient.connect()
+// Handle timeouts
+battleEyeClient.timeoutHandler = function () {
+  console.error("Connection timed out.");
+  battleEyeClient.disconnect();
+  process.exit(1);
+};
 
-// Send commands
-battleEyeClient.sendCommand("players")
-battleEyeClient.sendCommand("say -1 Hello World")
+// Connect to the RCON server
+battleEyeClient.connect();
+
+// After successful login, send commands, e.g.:
+battleEyeClient.sendCommand("players");
 ```
 
 # Dependencies
